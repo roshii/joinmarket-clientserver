@@ -328,7 +328,7 @@ class SpendTab(QWidget):
         self.spendstate.reset() #trigger callback to 'ready' state
 
     def generateTumbleSchedule(self):
-        if not w.wallet:
+        if not mainWindow.wallet_service:
             JMQtMessageBox(self, "Cannot start without a loaded wallet.",
                            mbtype="crit", title="Error")
             return
@@ -339,7 +339,7 @@ class SpendTab(QWidget):
         if wizard_return == QDialog.Rejected:
             return
         self.spendstate.loaded_schedule = wizard.get_schedule(
-            w.wallet.get_balance_by_mixdepth())
+            mainWindow.wallet_service.get_balance_by_mixdepth())
         self.spendstate.schedule_name = wizard.get_name()
         self.updateSchedView()
         self.tumbler_options = wizard.opts
