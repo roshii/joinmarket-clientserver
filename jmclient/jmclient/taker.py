@@ -1233,7 +1233,6 @@ def round_to_significant_figures(d, sf):
     for p in range(-10, 15):
         power10 = 10**p
         if power10 > d:
-            print("found p=" + str(p) + " 10**p=" + str(power10))
             sf_power10 = 10**sf
             sigfiged = int(round(d/power10*sf_power10)*power10/sf_power10)
             return sigfiged
