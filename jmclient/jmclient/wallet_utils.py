@@ -1339,6 +1339,12 @@ def open_wallet(path, ask_for_password=True, password=None, read_only=False,
                         "you need to convert it using the conversion script "
                         "at `scripts/convert_old_wallet.py`".format(path))
 
+    if not Storage.has_lockfile(path):
+        raise Exception("Lock file is present.\n\n "
+                       "If this is a leftover from a crashed instance "
+                       "you need to remove the lock file `{}` manually.".
+                       format(Storage.lock_filename(path)))
+
     if ask_for_password and Storage.is_encrypted_storage_file(path):
         while True:
             try:
@@ -1535,4 +1541,3 @@ if __name__ == "__main__":
     wallet = WalletView(rootpath + "/" + str(walletbranch),
                              accounts=acctlist)
     jmprint(wallet.serialize(), "success")
-

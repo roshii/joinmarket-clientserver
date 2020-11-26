@@ -109,6 +109,10 @@ class Storage(object):
     def is_locked(self):
         return self._lock_file and os.path.exists(self._lock_file)
 
+    @classmethod
+    def has_lockfile(cls, path):
+        return os.path.exists(cls.lock_filename(path))
+
     def was_changed(self):
         """
         return True if data differs from data on disk
@@ -279,12 +283,15 @@ class Storage(object):
         return Argon2Hash(password, salt,
                           hash_len=cls.ENC_KEY_BYTES, salt_len=cls.SALT_LENGTH)
 
+    @staticmethod
+    def lock_filename(path):
+        (path_head, path_tail) = os.path.split(path)
+        return os.path.join(path_head, '.' + path_tail + '.lock')
+
     def _create_lock(self):
         if self.read_only:
             return
-        (path_head, path_tail) = os.path.split(self.path)
-        lock_filename = os.path.join(path_head, '.' + path_tail + '.lock')
-        self._lock_file = lock_filename
+        self._lock_file = self.lock_filename(self.path)
         if os.path.exists(self._lock_file):
             with open(self._lock_file, 'r') as f:
                 locked_by_pid = f.read()
