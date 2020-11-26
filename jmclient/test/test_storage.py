@@ -113,6 +113,7 @@ def test_storage_lock(tmpdir):
         storage.Storage(p, pw)
         pytest.fail("File is locked")
 
+    assert s.has_lockfile(p)
     assert storage.Storage.is_storage_file(p)
     assert not storage.Storage.is_encrypted_storage_file(p)
 
@@ -130,4 +131,3 @@ def test_storage_lock(tmpdir):
     s = storage.Storage(p, pw)
     assert s.is_locked()
     assert s.data == {b'test': b'value'}
-
