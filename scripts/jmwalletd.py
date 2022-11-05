@@ -8,15 +8,36 @@ from jmbase.support import get_log, EXIT_FAILURE
 
 jlog = get_log()
 
+
 def jmwalletd_main():
-    parser = OptionParser(usage='usage: %prog [options] [wallet file]')
-    parser.add_option('-p', '--port', action='store', type='int',
-                      dest='port', default=28183,
-                      help='the port over which to serve RPC, default 28183')
-    parser.add_option('-w', '--wss-port', action='store', type='int',
-                      dest='wss_port', default=28283,
-                      help='the port over which to serve websocket '
-                      'subscriptions, default 28283')
+    parser = OptionParser(usage="usage: %prog [options] [wallet file]")
+    parser.add_option(
+        "-b",
+        "--bind",
+        action="store",
+        type="string",
+        dest="host",
+        default="127.0.0.1",
+        help="the local IPv4 address to which to bind, default 127.0.0.1.",
+    )
+    parser.add_option(
+        "-p",
+        "--port",
+        action="store",
+        type="int",
+        dest="port",
+        default=28183,
+        help="the port over which to serve RPC, default 28183",
+    )
+    parser.add_option(
+        "-w",
+        "--wss-port",
+        action="store",
+        type="int",
+        dest="wss_port",
+        default=28283,
+        help="the port over which to serve websocket subscriptions, default 28283",
+    )
 
     # TODO: remove the non-relevant base options:
     add_base_options(parser)
@@ -34,8 +55,7 @@ def jmwalletd_main():
     # unconfirmed balance is included in the wallet display by default
     if 'listunspent_args' not in jm_single().config.options('POLICY'):
         jm_single().config.set('POLICY','listunspent_args', '[0]')
-    jlog.info("Starting jmwalletd on port: " + str(options.port))
-    jm_wallet_daemon = JMWalletDaemon(options.port, options.wss_port)
+    jm_wallet_daemon = JMWalletDaemon(options.host, options.port, options.wss_port)
     jm_wallet_daemon.startService()
     nodaemon = jm_single().config.getint("DAEMON", "no_daemon")
     daemon = True if nodaemon == 1 else False

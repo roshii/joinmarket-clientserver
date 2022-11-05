@@ -138,7 +138,7 @@ class JMWalletDaemon(Service):
     """
 
     app = Klein()
-    def __init__(self, port, wss_port, tls=True):
+    def __init__(self, host, port, wss_port, tls=True):
         """ Port is the port to serve this daemon
         (using HTTP/TLS).
         wss_factory is a twisted protocol factory for the
@@ -146,11 +146,12 @@ class JMWalletDaemon(Service):
         """
         # cookie tracks single user's state.
         self.cookie = None
+        self.host = host
         self.port = port
         self.wss_port = wss_port
         self.tls = tls
-        pref = "wss" if self.tls else "ws"
-        self.wss_url = pref + "://127.0.0.1:" + str(wss_port)
+        scheme = "wss" if self.tls else "ws"
+        self.wss_url = f"{scheme}://{host}:{wss_port}"
         # the collection of services which this
         # daemon may switch on and off:
         self.services = {}
@@ -228,13 +229,24 @@ class JMWalletDaemon(Service):
         self.wss_factory.protocol = JmwalletdWebSocketServerProtocol
         if self.tls:
             cf = get_ssl_context(os.path.join(jm_single().datadir, "ssl"))
-            listener_rpc = reactor.listenSSL(self.port, Site(
-                self.app.resource()), contextFactory=cf)
+            listener_rpc = reactor.listenSSL(
+                self.port,
+                Site(self.app.resource()),
+                contextFactory=cf,
+                interface=self.host,
+            )
             listener_ws = listenWS(self.wss_factory, contextFactory=cf)
         else:
-            listener_rpc = reactor.listenTCP(self.port, Site(
-                self.app.resource()))
+            listener_rpc = reactor.listenTCP(
+                self.port,
+                Site(self.app.resource()),
+                interface=self.host,
+            )
             listener_ws = listenWS(self.wss_factory, contextFactory=None)
+        scheme = f"http{'s' if self.tls else ''}"
+        url = f"{scheme}://{self.host}:{self.port}"
+        jlog.info(f"RPC server listening on {url}")
+        jlog.info(f"WebSocket server listening on {self.wss_url}")
         return (listener_rpc, listener_ws)
 
     def stopService(self):
