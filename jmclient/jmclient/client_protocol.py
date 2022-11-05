@@ -851,9 +851,9 @@ def start_reactor(host, port, factory=None, snickerfactory=None,
                     jlog.info("{} daemon listening on port {}".format(
                         name, str(p[0] - port_offset)))
                     break
-                except Exception:
-                    jlog.warn("Cannot listen on port " + str(
-                        p[0] - port_offset) + ", trying next port")
+                except Exception as e:
+                    jlog.warn(str(e))
+                    jlog.info("Trying next port...")
                     if p[0] >= (orgp + 100):
                         jlog.error("Tried 100 ports but cannot "
                                    "listen on any of them. Quitting.")
