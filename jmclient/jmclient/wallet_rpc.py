@@ -147,6 +147,8 @@ class JMWalletDaemon(Service):
         """
         # cookie tracks single user's state.
         self.cookie = None
+        self.cookie_secret_key = bintohex(os.urandom(16))
+        self.cookie_signature_algorithm = "HS512"
         self.port = port
         self.wss_port = wss_port
         self.tls = tls
@@ -364,16 +366,15 @@ class JMWalletDaemon(Service):
     def check_cookie(self, request):
         #part after bearer is what we need
         try:
-            auth_header=((request.getHeader('Authorization')))
-            request_cookie = None
-            if auth_header is not None:
-                request_cookie=auth_header[7:]
-        except Exception:
-            # deliberately catching anything
-            raise NotAuthorized()
-        if request_cookie==None or self.cookie != request_cookie:
-            jlog.warn("Invalid cookie: " + str(
-                request_cookie) + ", request rejected.")
+            request_cookie = request.getHeader('Authorization')[7:]
+            jwt.decode(
+                request_cookie,
+                self.cookie_secret_key,
+                leeway=10,
+                algorithm=[self.cookie_signature_algorithm],
+            )
+        except Exception as e:
+            jlog.warn("Invalid cookie: " + e.message)
             raise NotAuthorized()
     
     def check_cookie_if_present(self, request):
@@ -381,17 +382,20 @@ class JMWalletDaemon(Service):
         if auth_header is not None:
             self.check_cookie(request)
 
-    def set_token(self, wallet_name):
+    def set_token(self):
         """ This function creates a new JWT token and sets it as our
         'cookie' for API and WS. Note this always creates a new fresh token,
         there is no option to manually set it, intentionally.
         """
         # any random secret is OK, as long as it is not deducible/predictable:
-        secret_key = bintohex(os.urandom(16))
-        encoded_token = jwt.encode({"wallet": wallet_name,
-                                    "exp" :datetime.datetime.utcnow(
-                                        )+datetime.timedelta(minutes=30)},
-                                   secret_key)
+        encoded_token = jwt.encode(
+            {
+                "wallet": self.wallet_name,
+                "exp" : datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
+            },
+            self.cookie_secret_key,
+            algorithm=self.cookie_signature_algorithm,
+        )
         self.cookie = encoded_token.strip()
         # We want to make sure that any websocket clients use the correct
         # token. The wss_factory should have been created on JMWalletDaemon
@@ -476,7 +480,7 @@ class JMWalletDaemon(Service):
         # respond to requests, we return the status to the client:
 
         # First, prepare authentication for the calling client:
-        self.set_token(wallet_name)
+        self.set_token()
         # return type is different for a newly created OR recovered
         # wallet, in this case we use the 'seedphrase' kwarg as trigger:
         if('seedphrase' in kwargs):
@@ -976,7 +980,7 @@ class JMWalletDaemon(Service):
                     # this also shouldn't happen so raise:
                     raise NoWalletFound()
                 # no exceptions raised means we just return token:
-                self.set_token(self.wallet_name)
+                self.set_token()
                 return make_jmwalletd_response(request,
                             walletname=self.wallet_name,
                             token=self.cookie)
