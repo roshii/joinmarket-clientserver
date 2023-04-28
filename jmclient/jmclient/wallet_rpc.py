@@ -374,7 +374,7 @@ class JMWalletDaemon(Service):
                 algorithms=self.cookie_signature_algorithm,
             )
         except Exception as e:
-            jlog.warn("Invalid cookie: " + type(e))
+            jlog.error(e)
             raise NotAuthorized()
     
     def check_cookie_if_present(self, request):
