@@ -387,7 +387,6 @@ class JMWalletDaemon(Service):
         'cookie' for API and WS. Note this always creates a new fresh token,
         there is no option to manually set it, intentionally.
         """
-        # any random secret is OK, as long as it is not deducible/predictable:
         encoded_token = jwt.encode(
             {
                 "wallet": self.wallet_name,
