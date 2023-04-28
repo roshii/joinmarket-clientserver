@@ -371,7 +371,7 @@ class JMWalletDaemon(Service):
                 request_cookie,
                 self.cookie_secret_key,
                 leeway=10,
-                algorithm=[self.cookie_signature_algorithm],
+                algorithms=self.cookie_signature_algorithm,
             )
         except Exception as e:
             jlog.warn("Invalid cookie: " + type(e))
