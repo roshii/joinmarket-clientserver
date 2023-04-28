@@ -395,7 +395,7 @@ class JMWalletDaemon(Service):
             self.cookie_secret_key,
             algorithm=self.cookie_signature_algorithm,
         )
-        self.cookie = encoded_token.strip()
+        self.cookie = encoded_token
         # We want to make sure that any websocket clients use the correct
         # token. The wss_factory should have been created on JMWalletDaemon
         # startup, so any failure to exist here is a logic error:
