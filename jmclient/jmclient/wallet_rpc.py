@@ -252,9 +252,8 @@ class JMWalletDaemon(Service):
         - shuts down any other running sub-services, such as yieldgenerator.
         - shuts down (aborts) any taker-side coinjoining happening.
         """
-        # Currently valid authorization tokens must be removed
-        # from the daemon:
-        self.cookie = None
+        # Invalidate previously issued cookies
+        self.init_cookie()
         if self.wss_factory:
             self.wss_factory.valid_token = None
         self.wallet_name = None
