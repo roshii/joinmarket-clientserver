@@ -146,8 +146,7 @@ class JMWalletDaemon(Service):
         websocket connections for clients to subscribe to updates.
         """
         # cookie tracks single user's state.
-        self.cookie = None
-        self.cookie_secret_key = bintohex(os.urandom(16))
+        self.init_cookie()
         self.cookie_signature_algorithm = "HS512"
         self.port = port
         self.wss_port = wss_port
@@ -275,6 +274,12 @@ class JMWalletDaemon(Service):
         if self.coinjoin_state == CJ_TAKER_RUNNING:
             self.taker.aborted = True
             self.taker_finished(False)
+
+    def init_cookie(self):
+        """ Initialize auth cookie.
+        """
+        self.cookie = None
+        self.cookie_secret_key = bintohex(os.urandom(16))
 
     def err(self, request, message):
         """ Return errors in a standard format.
