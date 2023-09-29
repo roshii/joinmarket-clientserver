@@ -1,3 +1,4 @@
+import base64
 import datetime
 import os
 
@@ -57,12 +58,16 @@ class JMTokenAuthority:
         if not self._scope <= token_claims:
             raise InvalidScopeError
 
-    def add_to_scope(self, *args: str):
+    def add_to_scope(self, *args: str, encoded: bool = True):
         for arg in args:
+            if encoded:
+                arg = str(base64.b64encode(arg.encode()))
             self._scope.add(arg)
 
-    def discard_from_scope(self, *args: str):
+    def discard_from_scope(self, *args: str, encoded: bool = True):
         for arg in args:
+            if encoded:
+                arg = str(base64.b64encode(arg.encode()))
             self._scope.discard(arg)
 
     @property
