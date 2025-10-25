@@ -3,6 +3,8 @@ ARG PYTHON_IMAGE_TAG=3.12-slim-trixie
 FROM bitcoin/bitcoin:${BITCOIN_VERSION} AS bitcoin
 FROM python:${PYTHON_IMAGE_TAG} AS python
 WORKDIR /jm/clientserver
+COPY ./pubkeys ./pubkeys
+COPY ./install.sh ./install.sh
 
 FROM python AS base-deps
 RUN DEBIAN_FRONTEND=noninteractive \

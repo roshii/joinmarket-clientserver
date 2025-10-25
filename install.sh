@@ -417,6 +417,9 @@ CookieAuthentication 1
 
 joinmarket_install ()
 {
+    if [[ ${without_jm} == 1 ]]; then
+        return 0
+    fi
     reqs='services'
 
     if [[ ${with_qt} == "1" ]]; then
@@ -426,8 +429,7 @@ joinmarket_install ()
         reqs+=',test'
     fi
 
-    if [ "$with_jmvenv" == 1 ]; then pip_command=pip; else pip_command=pip3; fi
-    $pip_command install -e ".[${reqs}]" || return 1
+    pip install -e ".[${reqs}]" || return 1
 
     if [[ ${with_qt} == "1" ]]; then
         if [[ -d ~/.local/share/icons ]] && [[ -d ~/.local/share/applications ]]; then
@@ -486,7 +488,9 @@ parse_flags ()
                 ;;
             --docker-install)
                 with_sudo='0'
-                with_jmvenv='0'
+                ;;
+            --deps)
+                without_jm='1'
                 ;;
             "")
                 break
@@ -509,6 +513,7 @@ Options:
 --with-local-tor            build Tor locally and autostart when needed
 --with-qt                   build the Qt GUI
 --without-qt                don't build the Qt GUI
+--deps                      install dependencies only, do not build or install Joinmarket
 "
                 return 1
                 ;;
@@ -570,22 +575,18 @@ main ()
     use_os_deps_check='1'
     use_secp_check='1'
     with_qt=''
-    with_jmvenv='1'
     with_sudo='1'
+    without_jm='0'
     reinstall='false'
     if ! parse_flags "${@}"; then
         return 1
     fi
 
     jm_source="$PWD"
-    if [ "$with_jmvenv" == 1 ]; then
-        jm_root="${jm_source}/jmvenv"
-        export PKG_CONFIG_PATH="${jm_root}/lib/pkgconfig:${PKG_CONFIG_PATH}"
-        export LD_LIBRARY_PATH="${jm_root}/lib:${LD_LIBRARY_PATH}"
-        export C_INCLUDE_PATH="${jm_root}/include:${C_INCLUDE_PATH}"
-    else
-        jm_root=""
-    fi
+    jm_root="${jm_source}/jmvenv"
+    export PKG_CONFIG_PATH="${jm_root}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+    export LD_LIBRARY_PATH="${jm_root}/lib:${LD_LIBRARY_PATH}"
+    export C_INCLUDE_PATH="${jm_root}/include:${C_INCLUDE_PATH}"
 
     # os check
     install_os="$( install_get_os )"
@@ -597,16 +598,12 @@ main ()
 
     MAKEFLAGS="-j $(num_cores)" && export MAKEFLAGS
 
-    if [ "$with_jmvenv" == 1 ]; then
-        if ! venv_setup; then
-            echo "Joinmarket Python virtual environment could not be setup. Exiting."
-            return 1
-        fi
-        # shellcheck source=/dev/null
-        source "${jm_root}/bin/activate"
-    else
-        upgrade_setuptools
+    if ! venv_setup; then
+        echo "Joinmarket Python virtual environment could not be setup. Exiting."
+        return 1
     fi
+    # shellcheck source=/dev/null
+    source "${jm_root}/bin/activate"
     if [[ ${build_local_tor} == "1" ]]; then
         if ! tor_deps_install; then
             echo "Tor dependencies could not be installed. Exiting."
@@ -638,17 +635,15 @@ main ()
     popd || return 1
     if ! joinmarket_install; then
         echo "Joinmarket was not installed. Exiting."
-        if [ "$with_jmvenv" == 1 ]; then deactivate; fi
+        deactivate
         return 1
     fi
-    if [ "$with_jmvenv" == 1 ]; then
-        deactivate
-        echo "Joinmarket successfully installed
-        Before executing scripts or tests, run:
+    deactivate
+    echo "Joinmarket successfully installed
+    Before executing scripts or tests, run:
 
-        \`source jmvenv/bin/activate\`
+    \`source jmvenv/bin/activate\`
 
-        from this directory, to activate the virtual environment."
-    fi
+    from this directory, to activate the virtual environment."
 }
 main "${@}"
