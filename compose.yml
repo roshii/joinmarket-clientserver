@@ -4,7 +4,7 @@ services:
     build:
       context: .
       target: test
-      args:
+      args: &build_args
         BITCOIN_VERSION: 29.2
         PYTHON_IMAGE_TAG: 3.12-slim-trixie
     volumes:
@@ -12,3 +12,10 @@ services:
       - ./test:/jm/clientserver/test
     shm_size: '2gb'
     command: ["./test/run_tests.sh", "-v"]
+  obwatcher:
+    image: joinmarket:obwatcher
+    build:
+      context: .
+      target: obwatcher
+      args: *build_args
+    command: ["python", "./scripts/obwatch/ob-watcher.py"]
