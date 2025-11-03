@@ -31,4 +31,8 @@ COPY --from=bitcoin /opt/bitcoin-${BITCOIN_VERSION}/bin /usr/local/bin/
 RUN . ./jmvenv/bin/activate \ 
   && pip install -e .[test]
 
+FROM base AS obwatcher
+RUN . ./jmvenv/bin/activate && pip install matplotlib
+CMD ["python", "./scripts/obwatch/ob-watcher.py"]
+
 FROM base AS joinmarket

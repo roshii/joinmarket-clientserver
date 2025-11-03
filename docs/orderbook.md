@@ -28,3 +28,11 @@ Launch the `ob-watcher.py` script from `scripts/obwatch` as any other Joinmarket
 Add `-p PORT` to use a custom port (default is equivalent to `-p 62601`).
 
 Then open the link to the just created local server in your favorite browser.
+
+### Running with Docker Compose
+
+The repository includes a `compose.yml` file that provides a pre-configured obwatcher service. This service can be started as follows:
+
+```sh
+docker compose up -d obwatcher
+```

@@ -287,6 +287,7 @@ The Dockerfile uses multi-stage builds with the following targets:
 
 * `joinmarket` (default) - Production image with JoinMarket installed
 * `test` - Testing image that includes Bitcoin Core binaries
+* `obwatcher` - Orderbook Watcher service
 
 You can build a specific target:
 

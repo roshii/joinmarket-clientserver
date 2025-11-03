@@ -16,3 +16,31 @@ services:
       target: test
     shm_size: '2gb'
     command: ["./test/run_tests.sh", "-v"]
+  tor:
+    image: leplusorg/tor
+    environment:
+      - SOCKS_HOSTNAME=tor
+    volumes:
+      - tor:/var/lib/tor
+  obwatcher:
+    extends: x-jmbase
+    image: joinmarket:obwatcher
+    build:
+      target: obwatcher
+    environment:
+      - JM_BLOCKCHAIN_BLOCKCHAIN_SOURCE=no-blockchain
+      - JM_MESSAGING_ONION_SOCKS5_HOST=tor
+      - JM_MESSAGING_ONION_TOR_CONTROL_HOST=tor
+      - JM_MESSAGING_HACKINT_SOCKS5_HOST=tor
+      - JM_MESSAGING_HACKINT_SOCKS5_PORT=9051
+      - JM_LOGGING_CONSOLE_LOG_LEVEL=DEBUG
+    command: ["python", "./scripts/obwatch/ob-watcher.py", "-H", "0.0.0.0"]
+    ports:
+      - "62601:62601"
+    volumes:
+      - tor:/var/lib/tor:ro
+    depends_on:
+      - tor
+
+volumes:
+  tor:
