@@ -33,6 +33,14 @@ CONNECT_TO_ONION_TIMEOUT = 60
 ONION_MSG_RATE_LIMIT = 45
 ONION_MSG_RATE_INTERVAL = 15
 
+# Rate limiting for outbound connections (e.g. to directory nodes).
+# More relaxed than inbound to accommodate large initial offer bursts
+# (directory nodes with 1000+ registered makers will send all offers
+# on connect), but still protects against a rogue/compromised DN
+# flooding the client.
+ONION_MSG_OUTBOUND_RATE_LIMIT = 2000
+ONION_MSG_OUTBOUND_RATE_INTERVAL = 30
+
 def location_tuple_to_str(t: Tuple[str, int]) -> str:
     return f"{t[0]}:{t[1]}"
 
@@ -169,9 +177,21 @@ class OnionLineProtocol(basic.LineReceiver):
     # which gives 35.5K, add a little breathing room.
     MAX_LENGTH = 40000
 
+    # Set to True for inbound (server-side) connections, False for outbound.
+    # Factories set this via buildProtocol; inbound uses the narrow limit,
+    # outbound uses the relaxed limit so large initial offer bursts from
+    # directory nodes are not mistaken for a DoS attack.
+    inbound = True
+
     def connectionMade(self):
         self.msg_count = 0
         self.msg_count_reset_time = time.monotonic()
+        if self.inbound:
+            self._rate_limit = ONION_MSG_RATE_LIMIT
+            self._rate_interval = ONION_MSG_RATE_INTERVAL
+        else:
+            self._rate_limit = ONION_MSG_OUTBOUND_RATE_LIMIT
+            self._rate_interval = ONION_MSG_OUTBOUND_RATE_INTERVAL
         self.factory.register_connection(self)
         basic.LineReceiver.connectionMade(self)
 
@@ -181,11 +201,11 @@ class OnionLineProtocol(basic.LineReceiver):
 
     def lineReceived(self, line: bytes) -> None:
         now = time.monotonic()
-        if now - self.msg_count_reset_time >= ONION_MSG_RATE_INTERVAL:
+        if now - self.msg_count_reset_time >= self._rate_interval:
             self.msg_count = 0
             self.msg_count_reset_time = now
         self.msg_count += 1
-        if self.msg_count > ONION_MSG_RATE_LIMIT:
+        if self.msg_count > self._rate_limit:
             log.info("Rate limit exceeded by peer {}, "
                      "dropping connection.".format(
                          network_addr_to_string(self.transport.getPeer())))
@@ -278,6 +298,15 @@ class OnionClientFactory(protocol.ClientFactory):
         self.directory = directory
         # to keep track of state of overall messagechannel
         self.mc = mc
+
+    def buildProtocol(self, addr) -> OnionLineProtocol:
+        # Mark outbound protocol instances so they use the relaxed rate
+        # limit rather than the strict inbound limit. Directory nodes
+        # send large bursts of offers on connect which would otherwise
+        # trip the inbound DoS protection.
+        p = super().buildProtocol(addr)
+        p.inbound = False
+        return p
 
     def clientConnectionLost(self, connector, reason):
         log.debug('Onion client connection lost: ' + str(reason))

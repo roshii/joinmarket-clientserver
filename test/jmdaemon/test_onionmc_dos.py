@@ -11,6 +11,7 @@ from unittest.mock import MagicMock
 from twisted.internet.address import IPv4Address
 
 from jmdaemon.onionmc import (
+    OnionClientFactory,
     OnionLineProtocol,
     OnionCustomMessage,
     OnionMessageChannel,
@@ -20,6 +21,8 @@ from jmdaemon.onionmc import (
     PEER_STATUS_HANDSHAKED,
     ONION_MSG_RATE_LIMIT,
     ONION_MSG_RATE_INTERVAL,
+    ONION_MSG_OUTBOUND_RATE_LIMIT,
+    ONION_MSG_OUTBOUND_RATE_INTERVAL,
 )
 
 
@@ -63,16 +66,19 @@ def make_valid_line(text="hello", msgtype=685):
     return json.dumps({"type": msgtype, "line": text}).encode("utf-8")
 
 
-def create_protocol():
-    """Create an OnionLineProtocol with mocked transport and factory."""
+def create_protocol(inbound: bool = True) -> OnionLineProtocol:
+    """Create an OnionLineProtocol with mocked transport and factory.
+
+    Pass inbound=False to simulate an outbound connection (e.g. to a DN).
+    """
     proto = OnionLineProtocol()
     proto.factory = FakeFactory()
     proto.transport = FakeTransport()
-    # Initialize rate limiting state as connectionMade would
-    proto.msg_count = 0
-    proto.msg_count_reset_time = time.monotonic()
+    proto.inbound = inbound
     # Needed by LineReceiver
     proto.delimiter = b"\r\n"
+    # Initialize rate limiting state via connectionMade
+    proto.connectionMade()
     return proto
 
 
@@ -107,7 +113,7 @@ class TestOnionLineProtocolRateLimiting:
 
         # Simulate time passing beyond the rate interval
         proto.msg_count_reset_time = (
-            time.monotonic() - ONION_MSG_RATE_INTERVAL - 1
+            time.monotonic() - proto._rate_interval - 1
         )
         # Should be able to send more messages now
         for _ in range(ONION_MSG_RATE_LIMIT):
@@ -121,14 +127,11 @@ class TestOnionLineProtocolRateLimiting:
         assert proto.transport.disconnected
 
     def test_rate_limit_counter_initialized_on_connection(self):
-        proto = OnionLineProtocol()
-        proto.factory = FakeFactory()
-        proto.transport = FakeTransport()
-        proto.delimiter = b"\r\n"
-        # Simulate connectionMade
-        proto.connectionMade()
+        proto = create_protocol()
         assert proto.msg_count == 0
         assert proto.msg_count_reset_time > 0
+        assert proto._rate_limit == ONION_MSG_RATE_LIMIT
+        assert proto._rate_interval == ONION_MSG_RATE_INTERVAL
 
     def test_first_message_after_limit_triggers_disconnect(self):
         """Verify that the very first message exceeding the limit
@@ -144,6 +147,76 @@ class TestOnionLineProtocolRateLimiting:
         assert proto.transport.disconnected
         # No additional messages should have been processed
         assert len(proto.factory.received_messages) == ONION_MSG_RATE_LIMIT
+
+
+class TestOnionLineProtocolOutboundRateLimiting:
+    """Tests for relaxed outbound rate limiting in OnionLineProtocol.
+
+    Outbound connections (e.g. to directory nodes) use a higher rate limit
+    to accommodate large initial offer bursts, but still protect against
+    rogue directory nodes.
+    """
+
+    def test_outbound_protocol_uses_relaxed_limits(self):
+        proto = create_protocol(inbound=False)
+        assert proto._rate_limit == ONION_MSG_OUTBOUND_RATE_LIMIT
+        assert proto._rate_interval == ONION_MSG_OUTBOUND_RATE_INTERVAL
+
+    def test_inbound_protocol_uses_strict_limits(self):
+        proto = create_protocol(inbound=True)
+        assert proto._rate_limit == ONION_MSG_RATE_LIMIT
+        assert proto._rate_interval == ONION_MSG_RATE_INTERVAL
+
+    def test_outbound_large_burst_not_rate_limited(self):
+        """Simulates a directory node sending 1000+ offers on connect."""
+        proto = create_protocol(inbound=False)
+        line = make_valid_line()
+        # A large DN currently has ~1040 peers; all offers sent on connect
+        for _ in range(1040):
+            proto.lineReceived(line)
+        assert not proto.transport.disconnected
+        assert len(proto.factory.received_messages) == 1040
+
+    def test_outbound_exceeding_relaxed_limit_still_disconnects(self):
+        """A rogue DN sending more than the relaxed limit is still dropped."""
+        proto = create_protocol(inbound=False)
+        line = make_valid_line()
+        for _ in range(ONION_MSG_OUTBOUND_RATE_LIMIT + 5):
+            proto.lineReceived(line)
+        assert proto.transport.disconnected
+        assert len(proto.factory.received_messages) == ONION_MSG_OUTBOUND_RATE_LIMIT
+
+    def test_client_factory_buildprotocol_sets_outbound(self):
+        """OnionClientFactory.buildProtocol must produce inbound=False instances."""
+        mc_mock = MagicMock()
+        factory = OnionClientFactory(
+            message_receive_callback=MagicMock(),
+            connection_callback=MagicMock(),
+            disconnection_callback=MagicMock(),
+            message_not_sendable_callback=MagicMock(),
+            directory=True,
+            mc=mc_mock,
+        )
+        from twisted.internet.address import IPv4Address
+        addr = IPv4Address("TCP", "127.0.0.1", 9050)
+        proto = factory.buildProtocol(addr)
+        assert proto.inbound is False
+
+    def test_outbound_rate_limit_resets_after_interval(self):
+        proto = create_protocol(inbound=False)
+        line = make_valid_line()
+        for _ in range(ONION_MSG_OUTBOUND_RATE_LIMIT):
+            proto.lineReceived(line)
+        assert not proto.transport.disconnected
+
+        # Simulate time passing beyond the outbound rate interval
+        proto.msg_count_reset_time = (
+            time.monotonic() - proto._rate_interval - 1
+        )
+        for _ in range(ONION_MSG_OUTBOUND_RATE_LIMIT):
+            proto.lineReceived(line)
+        assert not proto.transport.disconnected
+        assert len(proto.factory.received_messages) == 2 * ONION_MSG_OUTBOUND_RATE_LIMIT
 
 
 class TestReceiveMsgHandshakeCheck:
