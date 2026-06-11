@@ -34,13 +34,6 @@ jmdaemon = [
     "libnacl==1.8.0",
     "pyopenssl==25.3.0",
 ]
-jmqtui = [
-    "PyQt5!=5.15.0,!=5.15.1,!=5.15.2,!=6.0",
-    "PySide2!=5.15.0,!=5.15.1,!=5.15.2,!=6.0", # https://bugreports.qt.io/browse/QTBUG-88688
-    "qrcode[pil]==7.3.1",
-    'pywin32; platform_system == "Windows"',
-    "qt5reactor==0.6.3",
-]
 client = [
     "joinmarket[jmclient]",
     "joinmarket[jmbitcoin]",
@@ -62,10 +55,6 @@ test = [
     "pytest-cov>=2.4.0,<2.6",
     "pytest==9.0.3",
     "python-coveralls",
-]
-gui = [
-    "joinmarket[services]",
-    "joinmarket[jmqtui]",
 ]
 
 [project.urls]

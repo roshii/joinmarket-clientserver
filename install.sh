@@ -419,26 +419,12 @@ joinmarket_install ()
 {
     reqs='services'
 
-    if [[ ${with_qt} == "1" ]]; then
-        reqs='gui'
-    fi
     if [[ ${develop} == "1" ]]; then
         reqs+=',test'
     fi
 
     if [ "$with_jmvenv" == 1 ]; then pip_command=pip; else pip_command=pip3; fi
     $pip_command install -e ".[${reqs}]" || return 1
-
-    if [[ ${with_qt} == "1" ]]; then
-        if [[ -d ~/.local/share/icons ]] && [[ -d ~/.local/share/applications ]]; then
-            echo "Installing XDG desktop entry"
-            cp -f "$(dirname "$0")/docs/images/joinmarket_logo.png" \
-                ~/.local/share/icons/
-            sed "s/\\\$JMHOME/$(dirname "$(realpath "$0")" | sed 's/\//\\\//g')/" \
-                "$(dirname "$0")/joinmarket-qt.desktop" > \
-                    ~/.local/share/applications/joinmarket-qt.desktop
-        fi
-    fi
 }
 
 parse_flags ()
@@ -478,12 +464,6 @@ parse_flags ()
             --with-local-tor)
                 build_local_tor='1'
                 ;;
-            --with-qt)
-                with_qt='1'
-                ;;
-            --without-qt)
-                with_qt='0'
-                ;;
             --docker-install)
                 with_sudo='0'
                 with_jmvenv='0'
@@ -507,27 +487,12 @@ Options:
 --no-gpg-validation         disable GPG key validation for dependencies
 --python, -p                python version (only python3 versions are supported)
 --with-local-tor            build Tor locally and autostart when needed
---with-qt                   build the Qt GUI
---without-qt                don't build the Qt GUI
 "
                 return 1
                 ;;
         esac
         shift
     done
-
-    if [[ ${with_qt} == '' ]]; then
-        read -r -n 1 -p "
-        INFO: Joinmarket-Qt for GUI Taker and Tumbler modes is available.
-        Install Qt dependencies (~160mb)? (y/N) "
-        echo ""
-        if [[ ${REPLY} =~ y|Y ]]; then
-            echo "Building Qt GUI"
-            with_qt='1'
-        else
-            echo "Not building Qt GUI"
-        fi
-    fi
 }
 
 os_is_deb ()
@@ -569,7 +534,6 @@ main ()
     no_gpg_validation=''
     use_os_deps_check='1'
     use_secp_check='1'
-    with_qt=''
     with_jmvenv='1'
     with_sudo='1'
     reinstall='false'
