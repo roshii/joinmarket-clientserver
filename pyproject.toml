@@ -32,7 +32,7 @@ jmclient = [
 ]
 jmdaemon = [
     "libnacl==1.8.0",
-    "pyopenssl==25.3.0",
+    "pyopenssl==26.0.0",
 ]
 client = [
     "joinmarket[jmclient]",
