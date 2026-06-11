@@ -1,6 +1,6 @@
 ![Release workflow status](https://github.com/JoinMarket-Org/joinmarket-clientserver/actions/workflows/unittests.yml/badge.svg)
 
-**THIS REPOSITORY IS NOW ARCHIVED. It is not recommended for use, though the releases are still available. See the latest release notes.**
+**UPSTREAM REPOSITORY IS NOW ARCHIVED. This repository is based on latest release, with slight matintenance. Use at your own risk!**
 
 # joinmarket-clientserver
 
