@@ -14,7 +14,7 @@ dependencies = [
     "cryptography==45.0.7",
     "service-identity==21.1.0",
     "twisted==25.5.0",
-    "txtorcon==23.11.0",
+    "txtorcon==26.6.0",
 ]
 
 [project.optional-dependencies]
