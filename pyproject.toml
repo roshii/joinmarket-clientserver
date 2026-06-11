@@ -13,7 +13,7 @@ dependencies = [
     "chromalog==1.0.5",
     "cryptography==46.0.7",
     "service-identity==21.1.0",
-    "twisted==25.5.0",
+    "twisted==26.4.0rc2",
     "txtorcon==26.6.0",
 ]
 
