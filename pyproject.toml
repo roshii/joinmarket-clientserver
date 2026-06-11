@@ -60,7 +60,7 @@ test = [
     "mock",
     "pexpect",
     "pytest-cov>=2.4.0,<2.6",
-    "pytest==8.4.2",
+    "pytest==9.0.3",
     "python-coveralls",
 ]
 gui = [
