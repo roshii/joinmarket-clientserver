@@ -1,4 +1,4 @@
-![Release workflow status](https://github.com/JoinMarket-Org/joinmarket-clientserver/actions/workflows/unittests.yml/badge.svg)
+![Release workflow status](https://github.com/roshii/joinmarket-clientserver/actions/workflows/unittests.yml/badge.svg)
 
 **UPSTREAM REPOSITORY IS NOW ARCHIVED. This repository is based on latest release, with slight matintenance. Use at your own risk!**
 
