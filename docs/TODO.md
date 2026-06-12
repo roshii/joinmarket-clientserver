@@ -62,15 +62,6 @@ Bech32 native segwit has become default for coinjoins as of 0.8.0.
 
 This is done as of v0.9.6, we now have redundant directory nodes and peer to peer transaction negotiation over Tor, albeit it will doubtless require considerable refinement over time.
  
-### Qt GUI
-
-~~* Binary build process automated and, more importantly, working for Linux, Windows and Mac.~~
-
-~~There is no current process for building binaries on Mac or Windows (theoretically the latter is possible but a mess, so I'm not doing it).~~
-
-Windows binaries are now being built in an automated way via #641. The same process for Mac does not yet exist, however (though it is probably fairly feasible).
-
-* ~~Qt5 support, as Qt4 is being deprecated (see [issue204](https://github.com/JoinMarket-Org/joinmarket-clientserver/issues/204)).~~ Done as of 0.5.0.
 
 ### Alternative implementations
 

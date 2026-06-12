@@ -6,8 +6,6 @@ Note that the tumbler can be run as a script:
 (jmvenv)a@~/joinmarket-clientserver/scripts$ python tumbler.py --help
 ```
 
-or from the JoinmarketQt app in the "Multiple Joins" tab (see [the guide](JOINMARKET-QT-GUIDE.md)),
-
 or using the RPC-API via a webapp like [JAM](https://github.com/joinmarket-webui/jam).
 
 # Contents

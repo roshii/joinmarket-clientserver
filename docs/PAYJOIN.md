@@ -28,9 +28,7 @@ For that, see [this](https://reyify.com/blog/payjoin) post.
 
 7. [Configuring Tor to setup a hidden service](#torconfig)
 
-8. [Using JoinmarketQt to send and receive Payjoins](#using-qt)
-
-7. [Sample testnet wallet display output](#sample)
+8. [Sample testnet wallet display output](#sample)
 
 Some instructions here will be redundant with the introductory [usage guide](USAGE.md); sections 1-3 are aimed at users who have not/ will not use Joinmarket for ordinary coinjoins.
 So just skip those sections if you already know it.
@@ -149,7 +147,7 @@ including the 12 word seed, although consider privacy concerns when sending addr
 
 ### Doing a PayJoin payment.
 
-This section gives details on how to make payments with Payjoin. You might prefer to start with the video linked [here](#using-qt) to see how this works if you are using JoinmarketQt rather than the command line.
+This section gives details on how to make payments with Payjoin.
 
 <a name="bip78" />
 
@@ -162,7 +160,7 @@ The process here is to use the syntax of sendpayment.py:
 ```
 
 Notes on this:
-* Payjoins BIP78 style are done using the `sendpayment` script, or by entering the BIP21 URI into the "Recipient" field in JoinmarketQt.
+* Payjoins BIP78 style are done using the `sendpayment` script.
 * They are done using BIP21 URIs. These can be copy/pasted from a website (e.g. a btcpayserver invoice page), note that double quotes are required (on the command line) because the string contains special characters. Note also that you must see `pj=` in the URI, otherwise payjoin is not supported by that server.
 * If the url in `pj=` is `****.onion` it means you must be using Tor, remember to have Tor running on your system and change the configuration (see below) for socks5 port if necessary. If you are running the Tor browser the port is 9150 instead of 9050.
 * Don't forget to specify the mixdepth you are spending from with `-m 0`. The payment amount is of course in the URI, along with the address.
@@ -343,12 +341,6 @@ it means of course the other case. Double check with your counterparty, somethin
 #### Configuring Tor to setup an onion service
 
 Read about how to do this [here](./tor.md).
-
-<a name="using-qt" />
-
-### Using JoinmarketQt to send and receive Payjoins
-
-All of the configuration details above apply to this scenario (for example, setting up Tor if you want to act as receiver).
 
 <a name="sample" />
 

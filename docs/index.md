@@ -10,13 +10,13 @@
 
    c. [Running a yield generator general basics](./YIELDGENERATOR.md)
 
-   d. [Running JoinmarketQt for coinjoins and wallet control](JOINMARKET-QT-GUIDE.md)
+   d. ~~[Running JoinmarketQt for coinjoins and wallet control](JOINMARKET-QT-GUIDE.md)~~
 
    e. [Important info for takers - how to deal with commitments](./SOURCING-COMMITMENTS.md)
 
    f. [Important info for makers - how to create and use fidelity bonds](./fidelity-bonds.md)
 
-   g. [How to run the tumbler script (or in Qt) for a good privacy effect](tumblerguide.md)
+   g. [How to run the tumbler script ~~(or in Qt)~~ for a good privacy effect](tumblerguide.md)
 
    h. [How to run the orderbook script locally](orderbook.md)
 

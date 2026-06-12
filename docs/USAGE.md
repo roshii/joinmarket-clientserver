@@ -1,8 +1,6 @@
 (You have either followed the Quick Install on the readme (`./install.sh`) (RECOMMENDED), or have
 followed a manual installation as per [here](INSTALL.md)).
 
-(If you want to run Joinmarket-Qt, start with the [walkthrough](JOINMARKET-QT-GUIDE.md) instead of this.)
-
 # Contents
 
 1. [Managing your Joinmarket data](#data)

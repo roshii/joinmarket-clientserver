@@ -118,16 +118,6 @@ If you have installed this "full" version of the client, you can use it with the
     ```
     At this point you should see `(jmvenv)` at the beginning of your command prompt.
 
-7) Setup joinmarket-qt
-    ```
-    pip install .[gui]
-    ```
-8) Start joinmarket-qt
-    ```
-    cd scripts
-    python joinmarket-qt.py
-    ```
-
 ### Installation on Windows
 
 Before starting, note you need either (a) Bitcoin Core installed on Windows or (b) use a remote connection to Bitcoin Core specified in the `joinmarket.cfg` (explained at the end of this section).
@@ -142,7 +132,7 @@ If you haven't done so yet, install Bitcoin Core, version 28.1 or newer, as desc
 
 Bitcoin Core needs to be configured to allow JoinMarket to connect to it. From the `Settings` menu choose `Options` and click `Open Configuration File`. Add `server=1`, save and close the file. After that restart Bitcoin Core.
 
-There are currently two choices for installing on Windows; one, directly installing on Windows, requiring the manual addition of a libsodium dependency, or, two, using Ubuntu via the WSL mechanism (which may require additional setup to make the Qt GUI work).
+There are currently two choices for installing on Windows; one, directly installing on Windows, requiring the manual addition of a libsodium dependency, or, two, using Ubuntu via the WSL mechanism.
 
 1) [Installation directly on Windows](#installation-directly-on-windows)
 
@@ -164,13 +154,9 @@ Using the command prompt in Administrator mode, go to that directory and run the
 
 `pip install joinmarket[services]`
 
-(replace `services` with `gui` for Joinmarket-Qt).
-
 The final step is to manually add the libsodium dependency, as mentioned. Do the following:
 
 Download the file at `https://www.nuget.org/api/v2/package/libsodium` and rename it to `.zip` so that you can unzip it. Once unzipped, find the `libsodium.dll` file at `runtimes\win-x64\native\libsodium.dll` and copy it into `C:\Windows\System` (note this will require Admin rights).
-
-At this point Joinmarket should be ready to run both in command line and Joinmarket-Qt form (using `python joinmarket-qt.py` from the `\scripts` subdirectory of `joinmarket-clientserver`).
 
 From here, go to `Configuring Joinmarket` below.
 
@@ -221,19 +207,6 @@ The location of the data directory was chosen when Bitcoin Core was first run. T
 ```
 rpc_cookie_file = /mnt/c/Users/Alice/AppData/Roaming/Bitcoin/.cookie
 ```
-
-#### Running JoinMarket-Qt
-
-If you installed directly on Windows, this should work normally, as explained in the [usage guide](USAGE.md)
-
-If you installed using WSL, the following configuration is necessary:
-
-> note: you need to have installed JoinMarket with Qt support (see [this](../README.md#joinmarket-qt) section in the readme file)
-1. In Ubuntu, install additional dependencies `sudo apt install libgl1-mesa-glx`.
-2. Download and install [MobaXterm](https://mobaxterm.mobatek.net). This program needs to be running before you can start JoinMarket-Qt. It requires no additional configuration.
-3. Open WSL-Ubuntu session in MobaXTerm. Go to JoinMarket directory and run `source jmvenv/bin/activate` to activate the Python virtual environment.
-4. You can now start JoinMarket-Qt as described [here](JOINMARKET-QT-GUIDE.md).
-If you find that the program crashes with `qt.qpa.plugin: Could not load the Qt platform plugin`, you can add Qt5 dependencies with `sudo apt install qtbase5-dev` and try again.
 
 ### Alternative/custom installation:
 

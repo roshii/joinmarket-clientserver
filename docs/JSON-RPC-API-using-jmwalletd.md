@@ -61,7 +61,7 @@ As a brief summary, the functionality currently available is:
 * set the value of a specific config variable (only in memory)
 * a 'heartbeat' check that also reports whether a wallet is loaded, whether the maker is running, whether a coinjoin is in process.
 
-Clearly there are several further functionalities currently available in the CLI and Qt versions of Joinmarket which are not yet supported. It is likely that several or all of these will be added in future (e.g.: payjoin, utxo freezing).
+Clearly there are several further functionalities currently available in the CLI of Joinmarket which are not yet supported. It is likely that several or all of these will be added in future (e.g.: payjoin, utxo freezing).
 
 In addition to the above, a websocket service currently allowing subscription only to transaction events, and coinjoining state, is provided, see next.
 

@@ -68,19 +68,3 @@ a 20% chance of *each* yg bot rejecting the auth message and the tx message (bot
 20%). If you are running tumbler in adversarial conditions like that, consider
 changing things like the taker_utxo_retries or adding external commitments with
 the add-utxo tool so external commitments usage can be tested.
-
-### Testing Joinmarket-Qt with regtest
-
-You can follow the process above using `test/ygrunner.py` to set up the environment, and then just run:
-
-```
-(jmvenv)$ python joinmarket-qt.py --datadir=.
-```
-
-When loading a wallet here, regtest will be detected and will request a hex seed as described above.
-
-The 'generate' and 'recover' functions will not work like this on regtest, but you can generate a file-based wallet on regtest from the command line,
-and then load it with a one line hack to the joinmarket-qt.py file (I'll let you work that out, if you got this far :) ).
-You can also do full tumbler tests, on regtest, using the GUI, using this setup. Spin up ygrunner.py as described above, then start the tumbler wizard
-in the 'CoinJoin' tab, and the multi- subtab, and choose Generate Tumbler Schedule. There are 3 default destination addresses provided although
-you may want to change them, depending on the test.
