@@ -25,7 +25,6 @@ For a quick introduction to Joinmarket you can watch [this demonstration](https:
 * Can specify exact amount of coinjoin (figures from 0.01 to 30.0 btc and higher are practical), can choose time and number of counterparties
 * Uses [fidelity bonds](docs/fidelity-bonds.md) for protection against sybil attacks.
 * Can run passively to receive small payouts for taking part in coinjoins (see [doc page](docs/YIELDGENERATOR.md))
-* GUI to support Taker role, including tumbler/automated coinjoin sequence.
 * PayJoin - [BIP78](https://github.com/bitcoin/bips/blob/master/bip-0078.mediawiki) to pay users of other wallets (e.g. merchants), as well as between two compatible wallet users (Joinmarket, Wasabi, others). This is a way to boost fungibility/privacy while paying.
 * Protection from [forced address reuse](https://en.bitcoin.it/wiki/Privacy#Forced_address_reuse) attacks.
 * Address labeling
@@ -49,8 +48,6 @@ Follow instructions on screen; provide sudo password when prompted, then when fi
     source jmvenv/bin/activate
     cd scripts
 
-You can optionally install a Qt GUI application, you will be prompted to choose this during installation.
-
 You should now be able to run the scripts like `python wallet-tool.py` etc., just as you did in the previous Joinmarket version.
 
 Alternative to this "quickstart": follow the [install guide](docs/INSTALL.md).
@@ -68,8 +65,6 @@ Alternative to this "quickstart": follow the [install guide](docs/INSTALL.md).
 
 If you are new, follow and read the links in the [usage guide](docs/USAGE.md).
 
-If you are running Joinmarket-Qt, you can instead use the [walkthrough](docs/JOINMARKET-QT-GUIDE.md) to start.
-
 If you used the old version of Joinmarket, the notes in the [scripts readme](scripts/README.md) help to understand what has and hasn't changed about the scripts (warning: this refers to changes from several years ago, so may be slightly outdated).
 
 If you are looking for the available makers, run the [orderbook](docs/orderbook.md). It's recommended to run your own orderbook locally, but there are also public mirrors:
@@ -85,20 +80,6 @@ If you are looking for the available makers, run the [orderbook](docs/orderbook.
 ### PayJoin
 
 If you want to use the PayJoin feature to pay/receive money to/from another [BIP78]((https://github.com/bitcoin/bips/blob/master/bip-0078.mediawiki))-supporting wallet, read [this guide](docs/PAYJOIN.md).
-
-### Joinmarket-Qt
-
-Provides single join and multi-join/tumbler functionality (i.e. "Taker") only, in a GUI.
-
-If binaries are built, they will be gpg signed and announced on the Releases page.
-
-If you haven't chosen the Qt option during installation with `install.sh`, then to run the script `joinmarket-qt.py` from the command line you will need to install two more packages.  Use these 2 commands while the `jmvenv` virtual environment is activated:
-
-```
-pip install .[gui]
-```
-After this, the command `python joinmarket-qt.py` from within the `scripts` subdirectory should work.
-There is a [walkthrough](docs/JOINMARKET-QT-GUIDE.md) for what to do next.
 
 ### Architecture notes
 

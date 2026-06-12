@@ -40,7 +40,7 @@ The seed creation and recovery are therefore unchanged: we use the same BIP39 12
 
 ## OK, so how do I actually migrate, i.e. move to the new wallet type and orderbook?
 
-* Create a new wallet: either omitting the `native=` setting or setting it to `true`, *before* you run `python wallet-tool.py generate` or 'Generate' in Qt.
+* Create a new wallet: either omitting the `native=` setting or setting it to `true`, *before* you run `python wallet-tool.py generate`.
 * Move funds into it, like any new wallet; if you are moving from an old Joinmarket wallet to this new one, I suggest doing sweeps per-mixdepth, but (a) you can use coin-freezing to use individual coins and not connect them, if you prefer, (b) using a coinjoin on the *old* Joinmarket pit to do the transfer may not make much sense, since the output address will be 'bc1' not '3' and so the anon set effect will be lost.
 
 Once the funds are migrated, you can just go back to what you were doing before - except with lower fees. All pre-existing functions work the same way with these BIP84 wallets.
