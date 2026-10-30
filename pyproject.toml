@@ -23,7 +23,7 @@ jmbitcoin = [
 ]
 jmclient = [
     "argon2_cffi==21.3.0",
-    "autobahn==20.12.3",
+    "autobahn==26.10.1",
     "fastbencode==0.3.6",
     "klein==24.8.0",
     "mnemonic==0.20",
